@@ -1,16 +1,6 @@
 package me.jhenrique.manager;
 
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import me.jhenrique.model.Tweet;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -21,6 +11,15 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class to getting tweets based on username and optional time constraints
@@ -43,7 +42,7 @@ public class TweetManager {
 	 * @return JSON response used by Twitter to build its results
 	 * @throws Exception
 	 */
-	private static String getURLResponse(String username, String since, String until, String querySearch, String scrollCursor) throws Exception {
+	private static String getURLResponse(String username, String since, String until, String lang, String querySearch, String scrollCursor) throws Exception {
 		String appendQuery = "";
 		if (username != null) {
 			appendQuery += "from:"+username;
@@ -53,6 +52,9 @@ public class TweetManager {
 		}
 		if (until != null) {
 			appendQuery += " until:"+until;
+		}
+		if (lang !=null){
+			appendQuery += " lang:"+lang;
 		}
 		if (querySearch != null) {
 			appendQuery += " "+querySearch;
@@ -77,7 +79,7 @@ public class TweetManager {
 		try {
 			String refreshCursor = null;
 			outerLace: while (true) {
-				JSONObject json = new JSONObject(getURLResponse(criteria.getUsername(), criteria.getSince(), criteria.getUntil(), criteria.getQuerySearch(), refreshCursor));
+				JSONObject json = new JSONObject(getURLResponse(criteria.getUsername(), criteria.getSince(), criteria.getUntil(), criteria.getLang(), criteria.getQuerySearch(), refreshCursor));
 				refreshCursor = json.getString("min_position");
 				Document doc = Jsoup.parse((String) json.get("items_html"));
 				Elements tweets = doc.select("div.js-stream-tweet");
@@ -89,6 +91,7 @@ public class TweetManager {
 				for (Element tweet : tweets) {
 					String usernameTweet = tweet.select("span.username.js-action-profile-name b").text();
 					String txt = tweet.select("p.js-tweet-text").text().replaceAll("[^\\u0000-\\uFFFF]", "");
+					String lang = tweet.select("p.js-tweet-text").attr("lang");
 					int retweets = Integer.valueOf(tweet.select("span.ProfileTweet-action--retweet span.ProfileTweet-actionCount").attr("data-tweet-stat-count").replaceAll(",", ""));
 					int favorites = Integer.valueOf(tweet.select("span.ProfileTweet-action--favorite span.ProfileTweet-actionCount").attr("data-tweet-stat-count").replaceAll(",", ""));
 					long dateMs = Long.valueOf(tweet.select("small.time span.js-short-timestamp").attr("data-time-ms"));
@@ -114,6 +117,7 @@ public class TweetManager {
 					t.setMentions(processTerms("(@\\w*)", txt));
 					t.setHashtags(processTerms("(#\\w*)", txt));
 					t.setGeo(geo);
+					t.setLang(lang);
 					
 					results.add(t);
 					

@@ -13,6 +13,8 @@ public class TwitterCriteria {
 	private String since;
 	
 	private String until;
+
+	private String lang;
 	
 	private String querySearch;
 	
@@ -54,6 +56,16 @@ public class TwitterCriteria {
 		this.until = until;
 		return this;
 	}
+
+	/**
+	 * @param lang The language of the tweet (en, fr, it, es ...)
+	 *
+	 * @return Current {@link TwitterCriteria}
+	 */
+	public TwitterCriteria setLang(String lang) {
+		this.lang = lang;
+		return this;
+	}
 	
 	/**
 	 * @param querySearch A query text to be matched
@@ -85,6 +97,10 @@ public class TwitterCriteria {
 
 	String getUntil() {
 		return until;
+	}
+
+	String getLang() {
+		return lang;
 	}
 	
 	String getQuerySearch() {

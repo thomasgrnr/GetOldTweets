@@ -1,13 +1,13 @@
 package me.jhenrique.main;
 
+import me.jhenrique.manager.TweetManager;
+import me.jhenrique.manager.TwitterCriteria;
+import me.jhenrique.model.Tweet;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-
-import me.jhenrique.manager.TweetManager;
-import me.jhenrique.manager.TwitterCriteria;
-import me.jhenrique.model.Tweet;
 
 public class Exporter {
 	
